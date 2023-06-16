@@ -1,0 +1,12 @@
+const int gx = 24;
+int ga = 1;
+int gb = (gx * gx + 3) - (58 * 2) * 3; // gb = 231
+
+int main() {
+    const int x = 233 * 4; // x = 932
+    int a = 1;
+    int b = x + 2 * -3;
+    // b = 926
+    a = a + b / 2;
+    return +(- -!6);
+}

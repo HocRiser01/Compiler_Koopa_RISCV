@@ -1,0 +1,12 @@
+./compiler input.sy -o output && cat input.sy.koopa
+
+暂未支持：if短路求值，变量初始化列表，数组常量。
+可能会产生一些无用基本块（不影响功能）。
+没测float，不支持数组指针
+注意：文法规定if ()括号内不能再有括号，且返回值不能是逻辑表达式。
+getptr 所做的操作和 getelemptr 在汇编层面完全一致，故均用getelemptr
+
+测试用例(./input)：
+input1.sy（Lv4）：基础main函数、局部变量常量、全局变量常量、一元二元算数表达式、注释
+input2.sy (Lv7)：语句块及其嵌套、If语句、While语句（Break、Continue）、比较和逻辑表达式
+input3.sy（Lv9)：函数定义和调用、一维数组、多维数组
