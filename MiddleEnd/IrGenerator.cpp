@@ -235,13 +235,15 @@ String get_param(ObjTree::ObjManager* obj_manager, ObjTree:: ObjUuid cur_node_id
 
 String visit_ast(ObjTree::ObjManager* obj_manager, ObjTree::ObjUuid cur_node_idx){
     const String default_output = "";
-    // std::cout << cur_type << " " << cur_info << std::endl;
+    std::cout << cur_type << " " << cur_info << std::endl;
 
     if (cur_type == "CompUnitAst"){
         if (son_num == 1){
             return FIRST + "\n";
         }else if (son_num == 2){
-            return FIRST + "\n" + SECOND + "\n";
+            auto first = FIRST;
+            auto second = SECOND;
+            return first + "\n" + second + "\n";
         }else WRONG;
     }
 
@@ -287,7 +289,8 @@ String visit_ast(ObjTree::ObjManager* obj_manager, ObjTree::ObjUuid cur_node_idx
         if (son_num == 1){
             return FIRST;
         }else if (son_num == 2){
-            return FIRST + SECOND;
+            auto first = FIRST;
+            return first + SECOND;
         }else WRONG;
     }
 
@@ -324,26 +327,35 @@ String visit_ast(ObjTree::ObjManager* obj_manager, ObjTree::ObjUuid cur_node_idx
         if (son_num == 1){
             return FIRST;
         }else if (son_num == 2){
-            return FIRST + ", " + SECOND;
+            auto first = FIRST;
+            return first + ", " + SECOND;
         }else WRONG;
     }
 
     if (cur_type == "VarDeclAst"){
         if (son_num != 2) WRONG;
-        return str_replace(SECOND, "#TYPE", FIRST);
+        auto first = FIRST;
+        return str_replace(SECOND, "#TYPE", first);
     }
 
     if (cur_type == "VarDefListAst"){
         if (son_num == 1){
             return FIRST;
         }else if (son_num == 2){
-            return FIRST + SECOND;
+            auto first = FIRST;
+            return first + SECOND;
         }else WRONG;
     }
 
     if (cur_type == "VarDefAst"){
         if (son_num != 1 && son_num != 2) WRONG;
         symbol_table[stk_top][cur_info] = cur_info + std::to_string(block_cnt);
+
+        /* changed by GGN */
+        std::cerr << "[]  stk_top = " << stk_top << std::endl;
+        std::cerr << "    symbol_table[stk_top][" << cur_info << "]" << symbol_table[stk_top][cur_info] << std::endl;
+        /* changed by GGN */
+
         if (obj_manager -> get_son_uuid_list(first_son).size() == 0){
             value_type[stk_top][cur_info] = 0;
         }else{
@@ -358,10 +370,14 @@ String visit_ast(ObjTree::ObjManager* obj_manager, ObjTree::ObjUuid cur_node_idx
 
     if (cur_type == "FuncDefAst"){
         if (son_num == 2){
-            return "fun @" + cur_info + "()" + FIRST \
-                + " {\n" + SECOND + "}\n";
+            auto first = FIRST;
+            auto second = SECOND;
+            return "fun @" + cur_info + "()" + first \
+                + " {\n" + second + "}\n";
         }else if (son_num == 3){
-            return "fun @" + cur_info + "(" + SECOND + ")" + FIRST \
+            auto first = FIRST;
+            auto second = SECOND;
+            return "fun @" + cur_info + "(" + second + ")" + first \
                 + " {\n" + THIRD + "}\n";
         }else WRONG;
     }
@@ -380,12 +396,15 @@ String visit_ast(ObjTree::ObjManager* obj_manager, ObjTree::ObjUuid cur_node_idx
         if (son_num == 1){
             return FIRST;
         }else if (son_num == 2){
-            return FIRST + ", " + SECOND;
+            auto first = FIRST;
+            return first + ", " + SECOND;
         }else WRONG;
     }
 
     if (cur_type == "FuncFParamAst"){
         if (son_num == 2){
+            std::cerr << "in FuncFParamAst stk_top = " << stk_top << std::endl; // changed by GGN
+
             symbol_table[stk_top][cur_info] = cur_info + std::to_string(stk_top);
             String result = "@" + cur_info + std::to_string(stk_top) + ": ";
             param_type = 0;
@@ -403,6 +422,14 @@ String visit_ast(ObjTree::ObjManager* obj_manager, ObjTree::ObjUuid cur_node_idx
             result += "jump %block_entry" + std::to_string(++ block_cnt) + "\n\n";
             result += "%block_entry" + std::to_string(block_cnt) + ":\n";
             symbol_table[stk_top --].clear();
+
+            /* changed by GGN */
+            std::cerr << "[] stk_top = " << stk_top << std::endl;
+            for(auto& val: symbol_table[stk_top]) {
+                std::cerr << "    " << val.first << " " << val.second << std::endl;
+            }
+            /* changed by GGN */
+
             return result;
         }else WRONG;
     }
@@ -411,7 +438,9 @@ String visit_ast(ObjTree::ObjManager* obj_manager, ObjTree::ObjUuid cur_node_idx
         if (son_num == 0){
             return "";
         }else if (son_num == 2){
-            return FIRST + "\n" + SECOND;
+            auto first = FIRST;
+            auto second = SECOND;
+            return first + "\n" + second;
         }else WRONG;
     }
 
@@ -502,11 +531,14 @@ String visit_ast(ObjTree::ObjManager* obj_manager, ObjTree::ObjUuid cur_node_idx
 
     if (cur_type == "LValAst"){ // 作右值
         int k = stk_top;
+        std::cerr << "[]  stk_top = " << stk_top << std::endl; // changed by GGN
+
         for (; k >= 0; k --){
             if (symbol_table[k].find(cur_info) != symbol_table[k].end()){
                 break;
             }
         }
+
         if (k < 0) WRONG;
         if (const_int[k].find(cur_info) != const_int[k].end()){
             return "li %" + std::to_string(++ var_cnt) + ", " + std::to_string(const_int[k][cur_info]) + "\n";
@@ -571,7 +603,8 @@ String visit_ast(ObjTree::ObjManager* obj_manager, ObjTree::ObjUuid cur_node_idx
             call_params.push_back("%" + std::to_string(var_cnt));
             return result;
         }else{
-            String result = FIRST + SECOND;
+            auto first = FIRST;
+            String result = first + SECOND;
             call_params.push_back("%" + std::to_string(var_cnt));
             return result;
         }

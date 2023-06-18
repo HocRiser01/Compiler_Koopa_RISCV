@@ -1,0 +1,9 @@
+fun @half():i32 {
+%entry:
+    ret 0
+}
+fun @main(): i32 {
+%entry:
+  %0 = call @half(10)
+  ret %0
+}

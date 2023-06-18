@@ -10,7 +10,7 @@
 #include "FrontEnd/Parser.h"       // 编译器前端：负责读入文件并生成抽象语法树
 #include "ObjTree/ObjManager.h"    // 对象管理器模块，用于管理抽象语法树结点与中间代码结点
 #include "MiddleEnd/IrGenerator.h" // 中间代码生成器
-#include "BackEnd/ArmGenerator.h"  // 生成 ARM 目标代码
+#include "BackEnd/RiscGenerator.h"  // 生成 ARM 目标代码
 
 static ObjTree::ObjUuid get_random_uuid() {
 	ObjTree::ObjUuid r1 = ((ObjTree::ObjUuid)rand());
